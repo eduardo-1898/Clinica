@@ -19,7 +19,7 @@ if($usuarioOK && $passwordOK){
     require_once '../../DAL/login.php';
     if (ValidateAccess($usuario, $password)){
         
-        setcookie("username", $usuario, time()+ (86400 * 30), "/");
+        setcookie("username", $usuario, time()+ (3600 * 1000), "/");
         header("Location: ../../Home.php");
 
     }else{

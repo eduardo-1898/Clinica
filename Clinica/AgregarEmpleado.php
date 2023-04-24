@@ -13,7 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>Agregar pacientes</title>
+    <title>Agregar empleados</title>
     <script src="https://kit.fontawesome.com/89da924aef.js" crossorigin="anonymous"></script>
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
@@ -34,29 +34,40 @@
                         <div class="card-header py-3">
                                 <h6 class="m-0 font-weight-bold text-dark">
                                     <i class="fas fa-plus"></i> 
-                                    Agregar paciente
+                                    Agregar empleado
                                 </h6>
                             </div>
 
                             <div class="card-body border-bottom-primary">
-                                <form action="php/pacientes/addPaciente.php" method="POST">
+                                <form action="php/empleados/addEmpleado.php" method="POST">
                                     <div class="row mb-4">
                                         <div class="col col-md-6 col-sm-12">
-                                            <label for="CedulaCliente" class="form-label">Cédula del cliente </label>
+                                            <label for="idEmpleado" class="form-label">Cedula</label>
                                             <input type="text" 
-                                                id="CedulaCliente" 
-                                                name="CedulaCliente" 
+                                                id="idEmpleado" 
+                                                name="idEmpleado" 
                                                 class="form-control" 
                                                 pattern="^[0-9]+([,]?[0-9]+)*$"
                                                 placeholder="Ejemplo 111111111"
                                                 required/>
                                         </div>
                                         <div class="col col-md-6 col-sm-12">
-                                            <label for="FechaNacimiento" class="form-label">Fecha de nacimiento </label>
-                                            <input type="date" 
-                                                id="FechaNacimiento" 
-                                                name="FechaNacimiento" 
-                                                class="form-control" required/>
+                                            <label for="especialidad" class="form-label">Especialidad</label>
+                                            <select class="form-select" id="especialidad" name="especialidad">
+                                                <?php                                                   
+                                                    require_once "DAL/conexion.php";
+                                                    
+                                                    $conexion = getConnection();
+
+                                                    $query = $conexion -> query ("SELECT * FROM `especialidad`");                                                    
+                                                    while ($valores = mysqli_fetch_array($query)) {
+                                                        echo '<option value="'.$valores['id_especialidad'].'">'.$valores['nombre'].'</option>';
+                                                    }
+
+
+                                                    closeConnection($conexion);
+                                                ?>
+                                            </select>
                                         </div>
                                     </div>   
                                     <div class="row mb-3">
@@ -170,12 +181,22 @@
                                                 required/>
                                         </div>
                                     </div>
+                                    <div class="row mb-3">
+                                        <div class="col col-md-6 col-sm-12">
+                                            <label for="fechaNacimiento" class="form-label">Fecha de nacimiento </label>
+                                            <input type="date" 
+                                                id="fechaNacimiento" 
+                                                name="fechaNacimiento" 
+                                                class="form-control" 
+                                                required/>
+                                        </div>
+                                    </div>
 
                                     <button type="submit" name="add" class="btn btn-primary btn-icon-split">
                                         <span class="icon text-white-50">
                                             <i class="fas fa-check"></i>
                                         </span>
-                                        <span class="text">Agregar paciente</span>
+                                        <span class="text">Agregar empleado</span>
                                     </button>
                                     
                                 </form>
@@ -198,7 +219,7 @@
             echo "<script> Swal.fire({
                 icon: 'success',
                 title: 'Éxito',
-                text: 'Se ha ingresado el paciente correctamente',  
+                text: 'Se ha ingresado el empleado correctamente',  
                 }) </script>'";
                 $_SESSION["process"] = null;
         }
@@ -206,7 +227,7 @@
             echo "<script> Swal.fire({
                 icon: 'error',
                 title: 'Oops...!',
-                text: 'No hemos podido ingresar el paciente',  
+                text: 'No hemos podido ingresar el empleado',  
                 }) </script>";
                 $_SESSION["process"] = null;
         }

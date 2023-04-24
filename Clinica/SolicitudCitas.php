@@ -1,4 +1,6 @@
 <?php
+    session_start();
+
     if(!isset($_COOKIE["username"])){
         header("Location: Index.php");
     }
@@ -28,10 +30,8 @@
             <div id="content">
                 <?php include('Templates/navbar.php'); ?>
                 <div class="container-fluid">
-                    <form action="">
-
+                    <form action="php/Citas/procesarCitas.php" method="POST">
                         <div class="card shadow mb-4">
-
                             <div class="card-header py-3">
                                 <h6 class="m-0 font-weight-bold text-dark">
                                     <i class="fas fa-plus"></i> 
@@ -40,24 +40,29 @@
                             </div>
 
                             <div class="card-body border-bottom-primary">
-
                                 <div class="row mb-4">
                                     <div class="col col-md-6 col-sm-12">
                                         <input type="text" 
                                             id="CedulaCliente" 
                                             placeholder="Cédula del cliente" 
                                             name="CedulaCliente" 
-                                            class="form-control"
-                                            required />
+                                            class="form-control"/>
                                     </div>
                                     <div class="col col-md-6 col-sm-12">
-                                        <a id="searchDNI" class="btn btn-primary btn-circle">
+                                        <button type="submit" name="action" value="search" class="btn btn-primary btn-circle">
                                             <i class="fas fa-search"></i>
-                                        </a>
+                                        </button>
                                     </div>  
                                 </div>   
 
                                 <hr style="background-color:gray;">
+
+                                <input type="text" 
+                                    id="cedulaHidden" 
+                                    name="cedulaHidden" 
+                                    class="form-control" 
+                                    hidden
+                                    value="<?= (!isset($_GET["cedula"]))? "" : $_GET["cedula"] ?>"/>
 
                                 <div class="row mb-3">
                                     <div class="col col-md-6 col-sm-12">
@@ -66,6 +71,7 @@
                                             id="NombreCliente" 
                                             name="NombreCliente" 
                                             class="form-control" 
+                                            value="<?= (!isset($_GET["nombre"]) && !isset($_GET["apellidos"]))? "" : $_GET["nombre"]. " " . $_GET["apellidos"] ?>"
                                             readonly/>
                                     </div>
                                     <div class="col col-md-6 col-sm-12">
@@ -79,21 +85,50 @@
                                 
                                 <div class="row mb-3">
                                     <div class="col col-md-6 col-sm-12">
-                                        <label for="Especialidad" class="form-label">Especialidad</label>
-                                        <select class="form-select">
-                                            <option value="EE">Educación especial</option>
-                                            <option value="TL">Terapia de lenguaje</option>
-                                            <option value="TO">Terapia ocupacional</option>
-                                            <option value="PC">Psicopedagogía</option>
+                                        <label for="especialidad" class="form-label">Especialidad</label>
+                                        <select class="form-select" name="especialidad">
+                                            <?php                                                   
+                                                require_once "DAL/conexion.php";
+                                                $conexion = getConnection();
+                                                $query = $conexion -> query ("SELECT * FROM `especialidad`");                                                    
+                                                while ($valores = mysqli_fetch_array($query)) {
+                                                    echo '<option value="'.$valores['id_especialidad'].'">'.$valores['nombre'] .'</option>';
+                                                }
+                                                closeConnection($conexion);
+                                            ?>
                                         </select>
                                     </div>
+                                    <div class="col col-md-6 col-sm-12">
+                                        <label for="Hora" class="form-label" >Hora de cita</label>
+                                        <input type="time" 
+                                            id="Hora" 
+                                            name="Hora" 
+                                            class="form-control" />
+                                    </div>  
                                 </div>
-                                <a class="btn btn-primary btn-icon-split">
+
+                                <div class="row mb-3">
+                                    <div class="col col-md-6 col-sm-12">
+                                        <label for="empleado" class="form-label">Empleado</label>
+                                        <select class="form-select" name="empleado">
+                                            <?php                                                   
+                                                require_once "DAL/conexion.php";
+                                                $conexion = getConnection();
+                                                $query = $conexion -> query ("SELECT * FROM `empleado`");                                                    
+                                                while ($valores = mysqli_fetch_array($query)) {
+                                                    echo '<option value="'.$valores['id_empleado'].'">'.$valores['nombre']. ' ' . $valores['apellidos'] .'</option>';
+                                                }
+                                                closeConnection($conexion);
+                                            ?>
+                                        </select>
+                                    </div>  
+                                </div>
+                                <button type="submit" name="action" value="add" class="btn btn-primary btn-icon-split">
                                     <span class="icon text-white-50">
                                         <i class="fas fa-check"></i>
                                     </span>
                                     <span class="text">Agregar cita</span>
-                                </a>
+                                </button>
                             </div>
                         </div>
                     </form>
@@ -104,12 +139,28 @@
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>
-
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/jquery.easing.min.js"></script>
     <script src="js/sb-admin-2.min.js"></script>
-    <script src="js/citas/citas.js"></script>
+    <?php 
+        if(isset($_SESSION["process"]) && $_SESSION["process"] == "success"){
+            echo "<script> Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: 'Se ha ingresado la cita correctamente',  
+                }) </script>'";
+                $_SESSION["process"] = null;
+        }
+        else if(isset($_SESSION["process"]) && $_SESSION["process"] == "failed"){
+            echo "<script> Swal.fire({
+                icon: 'error',
+                title: 'Oops...!',
+                text: 'No hemos podido ingresar la cita',  
+                }) </script>";
+                $_SESSION["process"] = null;
+        }
+    ?>
 </body>
 
 </html>

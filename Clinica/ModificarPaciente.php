@@ -33,13 +33,19 @@
                     <div class="card mb-3">
                         <div class="card-header py-3">
                                 <h6 class="m-0 font-weight-bold text-dark">
-                                    <i class="fas fa-plus"></i> 
-                                    Agregar paciente
+                                    <i class="fas fa-pencil-alt"></i> 
+                                    Modificar paciente
                                 </h6>
                             </div>
 
                             <div class="card-body border-bottom-primary">
-                                <form action="php/pacientes/addPaciente.php" method="POST">
+                                <form action="php/pacientes/updatePaciente.php" method="POST">
+                                    <?php
+
+                                        require_once "DAL/pacientes.php";
+                                        $resultado = ObtenerPacientesById($_GET['id']);
+                                        $datos = $resultado -> fetch_assoc();
+                                    ?>
                                     <div class="row mb-4">
                                         <div class="col col-md-6 col-sm-12">
                                             <label for="CedulaCliente" class="form-label">Cédula del cliente </label>
@@ -48,15 +54,18 @@
                                                 name="CedulaCliente" 
                                                 class="form-control" 
                                                 pattern="^[0-9]+([,]?[0-9]+)*$"
-                                                placeholder="Ejemplo 111111111"
-                                                required/>
+                                                value="<?= $_GET['id'] ?>"
+                                                required
+                                                readonly />
                                         </div>
                                         <div class="col col-md-6 col-sm-12">
                                             <label for="FechaNacimiento" class="form-label">Fecha de nacimiento </label>
                                             <input type="date" 
                                                 id="FechaNacimiento" 
                                                 name="FechaNacimiento" 
-                                                class="form-control" required/>
+                                                class="form-control" 
+                                                value="<?= $datos['fechaNacimiento'] ?>"
+                                                required/>
                                         </div>
                                     </div>   
                                     <div class="row mb-3">
@@ -64,7 +73,8 @@
                                             <label for="Nombre" class="form-label">Nombre </label>
                                             <input type="text" 
                                                 id="Nombre" 
-                                                name="Nombre" 
+                                                name="Nombre"
+                                                value="<?= $datos['nombre'] ?>" 
                                                 class="form-control" required/>
                                         </div>
                                         <div class="col col-md-6 col-sm-12">
@@ -72,6 +82,7 @@
                                             <input type="text" 
                                                 id="Apellidos" 
                                                 name="Apellidos" 
+                                                value="<?= $datos['apellidos'] ?>"
                                                 class="form-control" required/>
                                         </div>  
                                     </div>
@@ -79,10 +90,10 @@
                                     <div class="row mb-3">
                                         <div class="col col-md-6 col-sm-12">
                                             <label for="genero" class="form-label">Genero</label>
-                                            <select class="form-select" id="genero" name="genero">
-                                                <option value="Masculino">Masculino</option>
-                                                <option value="Femenino">Femenino</option>
-                                                <option value="No define">No define</option>
+                                            <select class="form-select" id="genero" name="genero" value="<?= $datos['genero'] ?>">
+                                                <option value="Masculino" <?=$datos['genero'] == 'Masculino' ? ' selected="selected"' : '';?> >Masculino</option>
+                                                <option value="Femenino" <?=$datos['genero'] == 'Femenino' ? ' selected="selected"' : '';?>  >Femenino</option>
+                                                <option value="No define" <?=$datos['genero'] == 'No define' ? ' selected="selected"' : '';?> >No define</option>
                                             </select>
                                         </div>
                                         <div class="col col-md-6 col-sm-12">
@@ -90,6 +101,7 @@
                                             <input type="email" 
                                                 id="correo" 
                                                 name="correo" 
+                                                value="<?= $datos['correo'] ?>"
                                                 class="form-control" 
                                                 required/>
                                         </div>  
@@ -98,17 +110,16 @@
                                     <div class="row mb-3">
                                         <div class="col col-md-4 col-sm-12">
                                             <label for="provincia" class="form-label">Provincia</label>
+                                            <select class="form-select" id="provincia" name="provincia">
                                                 <?php                                                   
                                                     require_once "DAL/conexion.php";
                                                     
                                                     $conexion = getConnection();
 
                                                     $query = $conexion -> query ("SELECT * FROM `provincia`");                                                    
-                                                    echo '<select class="form-select" id="provincia" name="provincia">';
                                                     while ($valores = mysqli_fetch_array($query)) {
                                                         echo '<option value="'.$valores['id_PROVINCIA'].'">'.$valores['NOMBRE'].'</option>';
                                                     }
-                                                    echo '</select>';
 
                                                     closeConnection($conexion);
                                                 ?>
@@ -116,37 +127,38 @@
                                         </div>
                                         <div class="col col-md-4 col-sm-12">
                                             <label for="canton" class="form-label">Canton</label>
-                                            <?php                                                   
-                                                require_once "DAL/conexion.php";
-                                                
-                                                $conexion = getConnection();
+                                            <select class="form-select" id="canton" name="canton">
+                                                <?php                                                   
+                                                    require_once "DAL/conexion.php";
+                                                    
+                                                    $conexion = getConnection();
 
-                                                $query = $conexion -> query ("SELECT * FROM `canton`");                                                    
-                                                echo '<select class="form-select" id="canton" name="canton">';
-                                                while ($valores = mysqli_fetch_array($query)) {
-                                                    echo '<option value="'.$valores['id_CANTON'].'">'.$valores['NOMBRE'].'</option>';
-                                                }
-                                                echo '</select>';
+                                                    $query = $conexion -> query ("SELECT * FROM `canton`");                                                    
+                                                    while ($valores = mysqli_fetch_array($query)) {
+                                                        echo '<option value="'.$valores['id_CANTON'].'">'.$valores['NOMBRE'].'</option>';
+                                                    }
 
-                                                closeConnection($conexion);
-                                            ?>
+
+                                                    closeConnection($conexion);
+                                                ?>
+                                            </select>
                                         </div>
                                         <div class="col col-md-4 col-sm-12">
                                             <label for="distrito" class="form-label">Distrito</label>
-                                            <?php                                                   
-                                                require_once "DAL/conexion.php";
-                                                
-                                                $conexion = getConnection();
+                                            <select class="form-select" id="distrito" name="distrito">
+                                                <?php                                                   
+                                                    require_once "DAL/conexion.php";
+                                                    
+                                                    $conexion = getConnection();
 
-                                                $query = $conexion -> query ("SELECT * FROM `distrito`");                                                    
-                                                echo '<select class="form-select" id="distrito" name="distrito">';
-                                                while ($valores = mysqli_fetch_array($query)) {
-                                                    echo '<option value="'.$valores['id_DISTRITO'].'">'.$valores['NOMBRE'].'</option>';
-                                                }
-                                                echo '</select>';
+                                                    $query = $conexion -> query ("SELECT * FROM `distrito`");                                                    
+                                                    while ($valores = mysqli_fetch_array($query)) {
+                                                        echo '<option value="'.$valores['id_DISTRITO'].'">'.$valores['NOMBRE'].'</option>';
+                                                    }
 
-                                                closeConnection($conexion);
-                                            ?>
+                                                    closeConnection($conexion);
+                                                ?>
+                                            </select>
                                         </div> 
                                     </div>
 
@@ -156,7 +168,8 @@
                                             <input type="text" 
                                                 id="direccion" 
                                                 name="direccion" 
-                                                class="form-control" 
+                                                class="form-control"
+                                                value="<?= $datos['direccion'] ?>"
                                                 required/>
                                         </div>  
                                         <div class="col col-md-6 col-sm-12">
@@ -165,19 +178,31 @@
                                                 id="telefono" 
                                                 name="telefono" 
                                                 class="form-control" 
+                                                value="<?= $datos['telefono'] ?>"
                                                 pattern="^[0-9]+([,]?[0-9]+)*$"
                                                 placeholder="Ejemplo 70701515"
                                                 required/>
                                         </div>
                                     </div>
-
-                                    <button type="submit" name="add" class="btn btn-primary btn-icon-split">
-                                        <span class="icon text-white-50">
-                                            <i class="fas fa-check"></i>
-                                        </span>
-                                        <span class="text">Agregar paciente</span>
-                                    </button>
-                                    
+                                    <div class="row">
+                                        <div class="col col-md-6 col-sm-12">
+                                            <a href="Pacientes.php" name="add" class="btn btn-info btn-icon-split">
+                                                <span class="icon text-white-50">
+                                                    <i class="fas fa-arrow-left"></i>
+                                                </span>
+                                                <span class="text">Regresar</span>
+                                            </a>
+                                        </div>    
+                                        <div class="col col-md-6 col-sm-12">
+                                            <button type="submit" name="add" class="btn btn-success btn-icon-split float-end">
+                                                
+                                                <span class="icon text-white-50">
+                                                    <i class="fas fa-check"></i>
+                                                </span>
+                                                <span class="text">Modificar paciente</span>
+                                            </button>
+                                        </div>    
+                                    </div>
                                 </form>
                             </div>
                         </div>
@@ -198,17 +223,15 @@
             echo "<script> Swal.fire({
                 icon: 'success',
                 title: 'Éxito',
-                text: 'Se ha ingresado el paciente correctamente',  
-                }) </script>'";
-                $_SESSION["process"] = null;
+                text: 'Se ha modificado el paciente correctamente',  
+                }) window.reload();</script>'";
         }
         else if(isset($_SESSION["process"]) && $_SESSION["process"] == "failed"){
             echo "<script> Swal.fire({
                 icon: 'error',
                 title: 'Oops...!',
-                text: 'No hemos podido ingresar el paciente',  
+                text: 'No hemos podido modificar el paciente',  
                 }) </script>";
-                $_SESSION["process"] = null;
         }
         else if(isset($_SESSION["process"]) && $_SESSION["process"] == "badformat"){
             echo "<script> Swal.fire({
@@ -216,7 +239,6 @@
                 title: 'Oops...!',
                 text: 'Parece ser que el correo no contiene un formato correcto',  
                 }) </script>";
-                $_SESSION["process"] = null;
         }
     ?>
 </body>
